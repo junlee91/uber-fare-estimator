@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import { CrossIcon } from './Icons';
+import { CrossIcon } from "./Icons";
+import Loading from "./Loading";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -157,6 +158,13 @@ const WarningP = styled.p`
   color: #333333;
 `;
 
+const LoadingBox = styled.div`
+  padding: 12px 21px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+`;
+
 const CrossDiv = styled.div`
   cursor: pointer;
   &:hover path {
@@ -168,11 +176,13 @@ class Estimator extends React.Component {
   initialState = {
     pickups: "",
     destinations: "",
-  }
+    loading: false
+  };
 
   state = {
     pickups: "",
-    destinations: ""
+    destinations: "",
+    loading: false
   };
 
   onInputChange = event => {
@@ -189,12 +199,17 @@ class Estimator extends React.Component {
     const { pickups, destinations } = this.state;
 
     console.log(pickups, destinations);
+
+    this.setState({
+      loading: true
+    });
   };
 
   onReset = () => {
     this.setState(this.initialState);
-    console.log('Reset!!', this.state);
-  }
+
+    console.log("Reset!!", this.initialState);
+  };
 
   render() {
     return (
@@ -240,16 +255,22 @@ class Estimator extends React.Component {
                 </datalist>
               </InputBox>
               {this.state.pickups.length !== 0 &&
-                this.state.destinations.length !== 0 && (
+                this.state.destinations.length !== 0 &&
+                !this.state.loading && (
                   <EstimateBtn onClick={this.getFareEstimate}>
                     Calculate fare estimation
                   </EstimateBtn>
                 )}
+              {this.state.loading && (
+                <LoadingBox>
+                  <Loading />
+                </LoadingBox>
+              )}
               <EstimateResultBox>
                 <EstimateResultTitleBox>
                   <EstimateResultTitleText>All rides</EstimateResultTitleText>
-                  <CrossDiv onClick={this.onReset} >
-                    <CrossIcon/>
+                  <CrossDiv onClick={this.onReset}>
+                    <CrossIcon />
                   </CrossDiv>
                 </EstimateResultTitleBox>
                 <ResultRidesBox>
