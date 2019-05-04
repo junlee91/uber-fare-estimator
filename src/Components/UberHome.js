@@ -1,6 +1,8 @@
 import React from "react";
+// import styled from "styled-components";
 
 import Header from "./Header";
+import TitleBox from "./TitleBox";
 import config from "../config";
 
 export default () => {
@@ -9,7 +11,7 @@ export default () => {
   return (
     <>
       <Header />
-      <h1>Uber Fare Estimator Component</h1>
+      <TitleBox />
     </>
   );
 };

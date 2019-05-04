@@ -13,12 +13,16 @@ const HeaderContainer = styled.header`
   height: 70px;
   width: 100%;
   display: flex;
+  padding-right: 40px;
+  padding-left: 40px;
   justify-content: center;
   align-items: center;
 `;
 
 const Wrapper = styled.div`
-  width: ${props => props.theme.maxWidth};
+  width: 100%;
+  max-width: ${props => props.theme.maxWidth};
+  margin: 0 auto;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -76,7 +80,7 @@ const IconWrapper = styled.div`
 `;
 
 const SignUpBtn = styled.button`
-  background-color: #276EF1;
+  background-color: #276ef1;
   font-weight: 300;
   color: white;
   border: none;
