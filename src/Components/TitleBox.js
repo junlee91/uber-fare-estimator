@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 const ContentWrapper = styled.div`
-  height: 80vh;
   width: 100%;
   padding-top: 64px;
   padding-bottom: 64px;
