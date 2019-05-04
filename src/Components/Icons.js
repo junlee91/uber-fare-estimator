@@ -45,3 +45,18 @@ export const UberLoginIcon = () => (
     />
   </svg>
 );
+
+export const CrossIcon = () => (
+  <svg
+    width="1em"
+    height="1em"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <title>Navigation close menu</title>
+    <path
+      d="M21.1 5.1l-2.2-2.2-6.9 7-6.9-7-2.2 2.2 7 6.9-7 6.9 2.2 2.2 6.9-7 6.9 7 2.2-2.2-7-6.9 7-6.9z"
+      fill="currentColor"
+    />
+  </svg>
+);

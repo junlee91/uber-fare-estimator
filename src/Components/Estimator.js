@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { CrossIcon } from './Icons';
+
 const ContentWrapper = styled.div`
   width: 100%;
   padding-right: 40px;
@@ -108,7 +110,66 @@ const EstimateBtn = styled.button`
   }
 `;
 
+const EstimateResultBox = styled.div`
+  box-sizing: border-box;
+  background-color: #f6f6f6;
+  display: block;
+  line-height: 24px;
+`;
+
+const EstimateResultTitleBox = styled.div`
+  box-sizing: border-box;
+  border-bottom: 1px solid rgb(222, 223, 225);
+  padding-top: 9px;
+  margin: 0px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const EstimateResultTitleText = styled.p`
+  padding: 18px 0px;
+  line-height: 19px;
+  color: #276ef1;
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 0.8px;
+`;
+
+const ResultRidesBox = styled.div`
+  padding: 12px 0px 0px;
+  box-sizing: border-box;
+`;
+
+const RideItem = styled.div`
+  display: flex;
+  padding: 12px 21px;
+  line-height: 19px;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const WarningP = styled.p`
+  line-height: 20px;
+  padding: 20px 21px 25px;
+  font-size: 12px;
+  color: #333333;
+`;
+
+const CrossDiv = styled.div`
+  cursor: pointer;
+  &:hover path {
+    fill: ${props => props.theme.blueColor};
+  }
+`;
+
 class Estimator extends React.Component {
+  initialState = {
+    pickups: "",
+    destinations: "",
+  }
+
   state = {
     pickups: "",
     destinations: ""
@@ -130,6 +191,11 @@ class Estimator extends React.Component {
     console.log(pickups, destinations);
   };
 
+  onReset = () => {
+    this.setState(this.initialState);
+    console.log('Reset!!', this.state);
+  }
+
   render() {
     return (
       <ContentWrapper>
@@ -148,6 +214,7 @@ class Estimator extends React.Component {
                   list="pickups"
                   placeholder="Enter pickup location"
                   name="pickups"
+                  value={this.state.pickups}
                   onChange={this.onInputChange}
                 />
                 <datalist id="pickups">
@@ -161,6 +228,7 @@ class Estimator extends React.Component {
                   list="destinations"
                   placeholder="Enter destination"
                   name="destinations"
+                  value={this.state.destinations}
                   onChange={this.onInputChange}
                 />
                 <datalist id="destinations">
@@ -171,11 +239,43 @@ class Estimator extends React.Component {
                   <option value="Location 5" />
                 </datalist>
               </InputBox>
-              {this.state.pickups.length !== 0 && this.state.destinations.length !== 0 && (
-                <EstimateBtn onClick={this.getFareEstimate}>
-                  Calculate fare estimation
-                </EstimateBtn>
-              )}
+              {this.state.pickups.length !== 0 &&
+                this.state.destinations.length !== 0 && (
+                  <EstimateBtn onClick={this.getFareEstimate}>
+                    Calculate fare estimation
+                  </EstimateBtn>
+                )}
+              <EstimateResultBox>
+                <EstimateResultTitleBox>
+                  <EstimateResultTitleText>All rides</EstimateResultTitleText>
+                  <CrossDiv onClick={this.onReset} >
+                    <CrossIcon/>
+                  </CrossDiv>
+                </EstimateResultTitleBox>
+                <ResultRidesBox>
+                  <RideItem>
+                    <h1>Pool</h1>
+                    <h1>$5.82</h1>
+                  </RideItem>
+
+                  <RideItem>
+                    <h1>UberX</h1>
+                    <h1>$8.26</h1>
+                  </RideItem>
+
+                  <RideItem>
+                    <h1>UberCab</h1>
+                    <h1>$10.42</h1>
+                  </RideItem>
+
+                  <WarningP>
+                    Sample rider prices are estimates only and do not reflect
+                    variations due to discounts, traffic delays, or other
+                    factors. Flat rates and minimum fees may apply. Actual
+                    prices may vary.
+                  </WarningP>
+                </ResultRidesBox>
+              </EstimateResultBox>
             </div>
             <div>
               <h1>Map Goes here</h1>
