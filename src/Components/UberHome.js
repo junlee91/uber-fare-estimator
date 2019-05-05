@@ -4,11 +4,8 @@ import React from "react";
 import Header from "./Header";
 import TitleBox from "./TitleBox";
 import Estimator from './Estimator';
-import config from "../config";
 
 export default () => {
-  console.log(config);
-
   return (
     <>
       <Header />

@@ -1,8 +1,12 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import styled from "styled-components";
+import { GoogleApiWrapper } from "google-maps-react";
 
 import { CrossIcon } from "./Icons";
 import Loading from "./Loading";
+import config from "../config";
+// import { geoCode, reverseGeoCode } from "../mapHelpers";
 
 const ContentWrapper = styled.div`
   width: 100%;
@@ -172,11 +176,23 @@ const CrossDiv = styled.div`
   }
 `;
 
+const Map = styled.div`
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+`;
+
 class Estimator extends React.Component {
+  constructor(props) {
+    super(props);
+    this.mapRef = React.createRef();
+  }
+
   initialState = {
     pickups: "",
     destinations: "",
-    loading: false
+    loading: false,
+    pickupOptions: []
   };
 
   state = {
@@ -184,6 +200,28 @@ class Estimator extends React.Component {
     destinations: "",
     loading: false
   };
+
+  componentDidMount() {
+    const { google } = this.props;
+    const maps = google.maps;
+    const mapNode = ReactDOM.findDOMNode(this.mapRef.current);
+    const mapConfig = {
+      center: {
+        lat: 41.881556,
+        lng: -87.641952
+      },
+      disableDefaultUI: true,
+      zoom: 15
+    };
+
+    this.map = new maps.Map(mapNode, mapConfig);
+
+    setTimeout(() => {
+      this.setState({
+        options: ["Location1", "Location2", "Location3"]
+      });
+    }, 3000);
+  }
 
   onInputChange = event => {
     const {
@@ -233,11 +271,10 @@ class Estimator extends React.Component {
                   onChange={this.onInputChange}
                 />
                 <datalist id="pickups">
-                  <option value="Location 1" />
-                  <option value="Location 2" />
-                  <option value="Location 3" />
-                  <option value="Location 4" />
-                  <option value="Location 5" />
+                  {this.state.options &&
+                    this.state.options.map((opt, index) => (
+                      <option key={index} value={opt} />
+                    ))}
                 </datalist>
                 <Input
                   list="destinations"
@@ -299,7 +336,7 @@ class Estimator extends React.Component {
               </EstimateResultBox>
             </div>
             <div>
-              <h1>Map Goes here</h1>
+              <Map ref={this.mapRef} />
             </div>
           </Wrapper>
         </Content>
@@ -308,4 +345,6 @@ class Estimator extends React.Component {
   }
 }
 
-export default Estimator;
+export default GoogleApiWrapper({ apiKey: config.GOOGLE_MAP_API_KEY })(
+  Estimator
+);
