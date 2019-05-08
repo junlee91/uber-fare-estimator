@@ -10,6 +10,211 @@ import config from "../config";
 import sample from "../sample_estimate.json";
 // import { geoCode, reverseGeoCode } from "../mapHelpers";
 
+function forMatEstimateResult(result) {
+  const { prices } = result;
+  const sorted = _.orderBy(prices, "estimate");
+
+  return sorted;
+}
+
+class Estimator extends React.Component {
+  constructor(props) {
+    super(props);
+    this.mapRef = React.createRef();
+  }
+
+  initialState = {
+    pickups: "",
+    destinations: "",
+    loading: false,
+    pickupOptions: [],
+    prices: [],
+  };
+
+  state = {
+    pickups: "",
+    destinations: "",
+    loading: false
+  };
+
+  componentDidMount() {
+    navigator.geolocation.getCurrentPosition(
+      this.handleGeoSuccess,
+      this.handleGeoError
+    );
+
+    // for dedub
+    const prices = forMatEstimateResult(sample);
+
+    setTimeout(() => {
+      this.setState({
+        options: ["Location1", "Location2", "Location3"],
+        prices
+      });
+    }, 3000);
+  }
+
+  handleGeoSuccess = position => {
+    const {
+      coords: { latitude, longitude }
+    } = position;
+    this.setState({
+      lat: latitude,
+      lng: longitude
+    });
+
+    this.loadMap(latitude, longitude);
+    // this.reverseGeocodeAddress(latitude, longitude);
+  };
+
+  handleGeoError = () => {
+    console.log("No location");
+  };
+
+  loadMap = (lat, lng) => {
+    const { google } = this.props;
+    const maps = google.maps;
+    const mapNode = ReactDOM.findDOMNode(this.mapRef.current);
+    const mapConfig = {
+      center: {
+        lat,
+        lng
+      },
+      disableDefaultUI: true,
+      minZoom: 8,
+      zoom: 15
+    };
+    this.map = new maps.Map(mapNode, mapConfig);
+    // this.map.addListener("dragend", this.handleDragEnd);
+  };
+
+  onInputChange = event => {
+    const {
+      target: { name, value }
+    } = event;
+
+    this.setState({
+      [name]: value
+    });
+  };
+
+  getFareEstimate = () => {
+    const { pickups, destinations } = this.state;
+
+    console.log(pickups, destinations);
+
+    this.setState({
+      loading: true
+    });
+  };
+
+  onReset = () => {
+    this.setState(this.initialState);
+
+    console.log("Reset!!", this.initialState);
+  };
+
+  render() {
+    const { prices } = this.state;
+
+    return (
+      <ContentWrapper>
+        <Content>
+          <Wrapper>
+            <div>
+              <TitleText>
+                Uber price <br /> estimator
+              </TitleText>
+              <InputBox>
+                <Dots>
+                  <DotFirst />
+                  <DotSecond />
+                </Dots>
+                <Input
+                  list="pickups"
+                  placeholder="Enter pickup location"
+                  name="pickups"
+                  value={this.state.pickups}
+                  onChange={this.onInputChange}
+                />
+                <datalist id="pickups">
+                  {this.state.options &&
+                    this.state.options.map((opt, index) => (
+                      <option key={index} value={opt} />
+                    ))}
+                </datalist>
+                <Input
+                  list="destinations"
+                  placeholder="Enter destination"
+                  name="destinations"
+                  value={this.state.destinations}
+                  onChange={this.onInputChange}
+                />
+                <datalist id="destinations">
+                  <option value="Location 1" />
+                  <option value="Location 2" />
+                  <option value="Location 3" />
+                  <option value="Location 4" />
+                  <option value="Location 5" />
+                </datalist>
+              </InputBox>
+              {this.state.pickups.length !== 0 &&
+                this.state.destinations.length !== 0 &&
+                !this.state.loading && (
+                  <EstimateBtn onClick={this.getFareEstimate}>
+                    Calculate fare estimation
+                  </EstimateBtn>
+                )}
+              {this.state.loading && (
+                <LoadingBox>
+                  <Loading />
+                </LoadingBox>
+              )}
+              <EstimateResultBox>
+                <EstimateResultTitleBox>
+                  <EstimateResultTitleText>All rides</EstimateResultTitleText>
+                  <CrossDiv onClick={this.onReset}>
+                    <CrossIcon />
+                  </CrossDiv>
+                </EstimateResultTitleBox>
+                <ResultRidesBox>
+                  {prices &&
+                    prices.map(price => {
+                      const low = price.low_estimate;
+                      const high = price.high_estimate;
+                      const estimate =
+                        low && high ? `$${(low + high) / 2.0}` : price.estimate;
+
+                      return (
+                        <RideItem key={price.display_name}>
+                          <h1>{price.display_name}</h1>
+                          <h1>{estimate}</h1>
+                        </RideItem>
+                      );
+                    })}
+                  <WarningP>
+                    Sample rider prices are estimates only and do not reflect
+                    variations due to discounts, traffic delays, or other
+                    factors. Flat rates and minimum fees may apply. Actual
+                    prices may vary.
+                  </WarningP>
+                </ResultRidesBox>
+              </EstimateResultBox>
+            </div>
+            <div>
+              <Map ref={this.mapRef} />
+            </div>
+          </Wrapper>
+        </Content>
+      </ContentWrapper>
+    );
+  }
+}
+
+export default GoogleApiWrapper({ apiKey: config.GOOGLE_MAP_API_KEY })(
+  Estimator
+);
+
 const ContentWrapper = styled.div`
   width: 100%;
   padding-right: 40px;
@@ -183,180 +388,3 @@ const Map = styled.div`
   width: 100%;
   z-index: 1;
 `;
-
-function forMatEstimateResult(result) {
-  const { prices } = result;
-  const sorted = _.orderBy(prices, "estimate");
-
-  return sorted;
-}
-
-class Estimator extends React.Component {
-  constructor(props) {
-    super(props);
-    this.mapRef = React.createRef();
-  }
-
-  initialState = {
-    pickups: "",
-    destinations: "",
-    loading: false,
-    pickupOptions: []
-  };
-
-  state = {
-    pickups: "",
-    destinations: "",
-    loading: false
-  };
-
-  componentDidMount() {
-    const { google } = this.props;
-    const maps = google.maps;
-    const mapNode = ReactDOM.findDOMNode(this.mapRef.current);
-    const mapConfig = {
-      center: {
-        lat: 41.881556,
-        lng: -87.641952
-      },
-      disableDefaultUI: true,
-      zoom: 15
-    };
-    const prices = forMatEstimateResult(sample);
-
-    this.map = new maps.Map(mapNode, mapConfig);
-
-    setTimeout(() => {
-      this.setState({
-        options: ["Location1", "Location2", "Location3"],
-        prices
-      });
-    }, 3000);
-  }
-
-  onInputChange = event => {
-    const {
-      target: { name, value }
-    } = event;
-
-    this.setState({
-      [name]: value
-    });
-  };
-
-  getFareEstimate = () => {
-    const { pickups, destinations } = this.state;
-
-    console.log(pickups, destinations);
-
-    this.setState({
-      loading: true
-    });
-  };
-
-  onReset = () => {
-    this.setState(this.initialState);
-
-    console.log("Reset!!", this.initialState);
-  };
-
-  render() {
-    const { prices } = this.state;
-
-    return (
-      <ContentWrapper>
-        <Content>
-          <Wrapper>
-            <div>
-              <TitleText>
-                Uber price <br /> estimator
-              </TitleText>
-              <InputBox>
-                <Dots>
-                  <DotFirst />
-                  <DotSecond />
-                </Dots>
-                <Input
-                  list="pickups"
-                  placeholder="Enter pickup location"
-                  name="pickups"
-                  value={this.state.pickups}
-                  onChange={this.onInputChange}
-                />
-                <datalist id="pickups">
-                  {this.state.options &&
-                    this.state.options.map((opt, index) => (
-                      <option key={index} value={opt} />
-                    ))}
-                </datalist>
-                <Input
-                  list="destinations"
-                  placeholder="Enter destination"
-                  name="destinations"
-                  value={this.state.destinations}
-                  onChange={this.onInputChange}
-                />
-                <datalist id="destinations">
-                  <option value="Location 1" />
-                  <option value="Location 2" />
-                  <option value="Location 3" />
-                  <option value="Location 4" />
-                  <option value="Location 5" />
-                </datalist>
-              </InputBox>
-              {this.state.pickups.length !== 0 &&
-                this.state.destinations.length !== 0 &&
-                !this.state.loading && (
-                  <EstimateBtn onClick={this.getFareEstimate}>
-                    Calculate fare estimation
-                  </EstimateBtn>
-                )}
-              {this.state.loading && (
-                <LoadingBox>
-                  <Loading />
-                </LoadingBox>
-              )}
-              <EstimateResultBox>
-                <EstimateResultTitleBox>
-                  <EstimateResultTitleText>All rides</EstimateResultTitleText>
-                  <CrossDiv onClick={this.onReset}>
-                    <CrossIcon />
-                  </CrossDiv>
-                </EstimateResultTitleBox>
-                <ResultRidesBox>
-                  {prices &&
-                    prices.map(price => {
-                      const low = price.low_estimate;
-                      const high = price.high_estimate;
-                      const estimate =
-                        low && high ? `$${(low + high) / 2.0}` : price.estimate;
-
-                      return (
-                        <RideItem key={price.display_name}>
-                          <h1>{price.display_name}</h1>
-                          <h1>{estimate}</h1>
-                        </RideItem>
-                      );
-                    })}
-                  <WarningP>
-                    Sample rider prices are estimates only and do not reflect
-                    variations due to discounts, traffic delays, or other
-                    factors. Flat rates and minimum fees may apply. Actual
-                    prices may vary.
-                  </WarningP>
-                </ResultRidesBox>
-              </EstimateResultBox>
-            </div>
-            <div>
-              <Map ref={this.mapRef} />
-            </div>
-          </Wrapper>
-        </Content>
-      </ContentWrapper>
-    );
-  }
-}
-
-export default GoogleApiWrapper({ apiKey: config.GOOGLE_MAP_API_KEY })(
-  Estimator
-);
