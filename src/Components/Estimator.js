@@ -2,10 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import { GoogleApiWrapper } from "google-maps-react";
+import _ from "lodash";
 
 import { CrossIcon } from "./Icons";
 import Loading from "./Loading";
 import config from "../config";
+import sample from "../sample_estimate.json";
 // import { geoCode, reverseGeoCode } from "../mapHelpers";
 
 const ContentWrapper = styled.div`
@@ -182,6 +184,13 @@ const Map = styled.div`
   z-index: 1;
 `;
 
+function forMatEstimateResult(result) {
+  const { prices } = result;
+  const sorted = _.orderBy(prices, "estimate");
+
+  return sorted;
+}
+
 class Estimator extends React.Component {
   constructor(props) {
     super(props);
@@ -213,12 +222,14 @@ class Estimator extends React.Component {
       disableDefaultUI: true,
       zoom: 15
     };
+    const prices = forMatEstimateResult(sample);
 
     this.map = new maps.Map(mapNode, mapConfig);
 
     setTimeout(() => {
       this.setState({
-        options: ["Location1", "Location2", "Location3"]
+        options: ["Location1", "Location2", "Location3"],
+        prices
       });
     }, 3000);
   }
@@ -250,6 +261,8 @@ class Estimator extends React.Component {
   };
 
   render() {
+    const { prices } = this.state;
+
     return (
       <ContentWrapper>
         <Content>
@@ -311,21 +324,20 @@ class Estimator extends React.Component {
                   </CrossDiv>
                 </EstimateResultTitleBox>
                 <ResultRidesBox>
-                  <RideItem>
-                    <h1>Pool</h1>
-                    <h1>$5.82</h1>
-                  </RideItem>
+                  {prices &&
+                    prices.map(price => {
+                      const low = price.low_estimate;
+                      const high = price.high_estimate;
+                      const estimate =
+                        low && high ? `$${(low + high) / 2.0}` : price.estimate;
 
-                  <RideItem>
-                    <h1>UberX</h1>
-                    <h1>$8.26</h1>
-                  </RideItem>
-
-                  <RideItem>
-                    <h1>UberCab</h1>
-                    <h1>$10.42</h1>
-                  </RideItem>
-
+                      return (
+                        <RideItem key={price.display_name}>
+                          <h1>{price.display_name}</h1>
+                          <h1>{estimate}</h1>
+                        </RideItem>
+                      );
+                    })}
                   <WarningP>
                     Sample rider prices are estimates only and do not reflect
                     variations due to discounts, traffic delays, or other
