@@ -8,7 +8,8 @@ import { CrossIcon } from "./Icons";
 import Loading from "./Loading";
 import config from "../config";
 import sample from "../sample_estimate.json";
-// import { geoCode, reverseGeoCode } from "../mapHelpers";
+import { geoCode } from "../mapHelpers";
+import { debounce } from "./utils";
 
 function forMatEstimateResult(result) {
   const { prices } = result;
@@ -21,19 +22,22 @@ class Estimator extends React.Component {
   constructor(props) {
     super(props);
     this.mapRef = React.createRef();
+    this.fetchPlaces = debounce(this.fetchPlaces, 500);
   }
 
   initialState = {
-    pickups: "",
-    destinations: "",
+    pickup: "",
+    destination: "",
     loading: false,
+    showRides: false,
     pickupOptions: [],
-    prices: [],
+    destinationOptions: [],
+    prices: []
   };
 
   state = {
-    pickups: "",
-    destinations: "",
+    pickup: "",
+    destination: "",
     loading: false
   };
 
@@ -42,16 +46,6 @@ class Estimator extends React.Component {
       this.handleGeoSuccess,
       this.handleGeoError
     );
-
-    // for dedub
-    const prices = forMatEstimateResult(sample);
-
-    setTimeout(() => {
-      this.setState({
-        options: ["Location1", "Location2", "Location3"],
-        prices
-      });
-    }, 3000);
   }
 
   handleGeoSuccess = position => {
@@ -64,12 +58,27 @@ class Estimator extends React.Component {
     });
 
     this.loadMap(latitude, longitude);
-    // this.reverseGeocodeAddress(latitude, longitude);
   };
 
   handleGeoError = () => {
     console.log("No location");
   };
+
+  async fetchPlaces(name, address) {
+    if (address) {
+      // TODO: Not supporting dynamic update yet
+      // const result = await geoCode(address);
+      // if (name === "pickup") {
+      //   this.setState({
+      //     pickupOptions: result
+      //   });
+      // } else if (name === "destination") {
+      //   this.setState({
+      //     destinationOptions: result
+      //   });
+      // }
+    }
+  }
 
   loadMap = (lat, lng) => {
     const { google } = this.props;
@@ -85,7 +94,6 @@ class Estimator extends React.Component {
       zoom: 15
     };
     this.map = new maps.Map(mapNode, mapConfig);
-    // this.map.addListener("dragend", this.handleDragEnd);
   };
 
   onInputChange = event => {
@@ -98,14 +106,27 @@ class Estimator extends React.Component {
     });
   };
 
-  getFareEstimate = () => {
-    const { pickups, destinations } = this.state;
+  getFareEstimate = async () => {
+    const { pickup, destination } = this.state;
+    const pickLoc = await geoCode(pickup);
+    const destLoc = await geoCode(destination);
 
-    console.log(pickups, destinations);
+    console.log(pickLoc[0], destLoc[0]);
 
     this.setState({
       loading: true
     });
+
+    // for testing
+    const prices = forMatEstimateResult(sample);
+
+    setTimeout(() => {
+      this.setState({
+        prices,
+        loading: false,
+        showRides: true
+      });
+    }, 3000);
   };
 
   onReset = () => {
@@ -131,36 +152,35 @@ class Estimator extends React.Component {
                   <DotSecond />
                 </Dots>
                 <Input
-                  list="pickups"
+                  list="pickup"
                   placeholder="Enter pickup location"
-                  name="pickups"
-                  value={this.state.pickups}
+                  name="pickup"
+                  value={this.state.pickup}
                   onChange={this.onInputChange}
                 />
-                <datalist id="pickups">
-                  {this.state.options &&
-                    this.state.options.map((opt, index) => (
-                      <option key={index} value={opt} />
+                {/* <datalist id="pickup">
+                  {pickupOptions &&
+                    pickupOptions.map((opt, index) => (
+                      <option key={index} value={opt.address} data={opt} />
                     ))}
-                </datalist>
+                </datalist> */}
                 <Input
-                  list="destinations"
+                  list="destination"
                   placeholder="Enter destination"
-                  name="destinations"
-                  value={this.state.destinations}
+                  name="destination"
+                  value={this.state.destination}
                   onChange={this.onInputChange}
                 />
-                <datalist id="destinations">
-                  <option value="Location 1" />
-                  <option value="Location 2" />
-                  <option value="Location 3" />
-                  <option value="Location 4" />
-                  <option value="Location 5" />
-                </datalist>
+                {/* <datalist id="destination">
+                  {destinationOptions &&
+                    destinationOptions.map((opt, index) => (
+                      <option key={index} value={opt.address} data={opt} />
+                    ))}
+                </datalist> */}
               </InputBox>
-              {this.state.pickups.length !== 0 &&
-                this.state.destinations.length !== 0 &&
-                !this.state.loading && (
+              {this.state.pickup.length !== 0 &&
+                this.state.destination.length !== 0 &&
+                !this.state.loading && !this.state.showRides && (
                   <EstimateBtn onClick={this.getFareEstimate}>
                     Calculate fare estimation
                   </EstimateBtn>
@@ -170,36 +190,40 @@ class Estimator extends React.Component {
                   <Loading />
                 </LoadingBox>
               )}
-              <EstimateResultBox>
-                <EstimateResultTitleBox>
-                  <EstimateResultTitleText>All rides</EstimateResultTitleText>
-                  <CrossDiv onClick={this.onReset}>
-                    <CrossIcon />
-                  </CrossDiv>
-                </EstimateResultTitleBox>
-                <ResultRidesBox>
-                  {prices &&
-                    prices.map(price => {
-                      const low = price.low_estimate;
-                      const high = price.high_estimate;
-                      const estimate =
-                        low && high ? `$${(low + high) / 2.0}` : price.estimate;
+              {this.state.showRides && (
+                <EstimateResultBox>
+                  <EstimateResultTitleBox>
+                    <EstimateResultTitleText>All rides</EstimateResultTitleText>
+                    <CrossDiv onClick={this.onReset}>
+                      <CrossIcon />
+                    </CrossDiv>
+                  </EstimateResultTitleBox>
+                  <ResultRidesBox>
+                    {prices &&
+                      prices.map(price => {
+                        const low = price.low_estimate;
+                        const high = price.high_estimate;
+                        const estimate =
+                          low && high
+                            ? `$${(low + high) / 2.0}`
+                            : price.estimate;
 
-                      return (
-                        <RideItem key={price.display_name}>
-                          <h1>{price.display_name}</h1>
-                          <h1>{estimate}</h1>
-                        </RideItem>
-                      );
-                    })}
-                  <WarningP>
-                    Sample rider prices are estimates only and do not reflect
-                    variations due to discounts, traffic delays, or other
-                    factors. Flat rates and minimum fees may apply. Actual
-                    prices may vary.
-                  </WarningP>
-                </ResultRidesBox>
-              </EstimateResultBox>
+                        return (
+                          <RideItem key={price.display_name}>
+                            <h1>{price.display_name}</h1>
+                            <h1>{estimate}</h1>
+                          </RideItem>
+                        );
+                      })}
+                    <WarningP>
+                      Sample rider prices are estimates only and do not reflect
+                      variations due to discounts, traffic delays, or other
+                      factors. Flat rates and minimum fees may apply. Actual
+                      prices may vary.
+                    </WarningP>
+                  </ResultRidesBox>
+                </EstimateResultBox>
+              )}
             </div>
             <div>
               <Map ref={this.mapRef} />
@@ -234,6 +258,7 @@ const Wrapper = styled.div`
   display: grid;
   grid-gap: 70px;
   grid-template-columns: 1fr 2fr;
+  min-height: 50vh;
 `;
 
 const TitleText = styled.h2`

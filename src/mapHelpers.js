@@ -9,21 +9,15 @@ export const geoCode = async address => {
 
   if (!data.error_message) {
     const { results } = data;
-
-    console.log(results);
-
-    const firstPlace = results[0];
-    const {
-      formatted_address,
-      geometry: {
-        location: { lat, lng }
-      }
-    } = firstPlace;
-
-    return { formatted_address, lat, lng };
+    return results.map(result => {
+      return {
+        address: result.formatted_address,
+        lat: result.geometry.location.lat,
+        lng: result.geometry.location.lng
+      };
+    });
   } else {
     console.error(data.error_message);
-
     return false;
   }
 };
