@@ -240,6 +240,7 @@ class Estimator extends React.Component {
                   name="pickup"
                   value={this.state.pickup}
                   onChange={this.onInputChange}
+                  readOnly={this.state.showRides}
                 />
                 {/* <datalist id="pickup">
                   {pickupOptions &&
@@ -253,6 +254,7 @@ class Estimator extends React.Component {
                   name="destination"
                   value={this.state.destination}
                   onChange={this.onInputChange}
+                  readOnly={this.state.showRides}
                 />
                 {/* <datalist id="destination">
                   {destinationOptions &&
