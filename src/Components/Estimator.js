@@ -7,14 +7,11 @@ import _ from "lodash";
 import { CrossIcon } from "./Icons";
 import Loading from "./Loading";
 import config from "../config";
-import sample from "../sample_estimate.json";
-import { geoCode } from "../mapHelpers";
+import { geoCode, getUberEstimate } from "../mapHelpers";
 import { debounce } from "./utils";
 
-function forMatEstimateResult(result) {
-  const { prices } = result;
+function forMatEstimateResult(prices) {
   const sorted = _.orderBy(prices, "estimate");
-
   return sorted;
 }
 
@@ -32,7 +29,8 @@ class Estimator extends React.Component {
     showRides: false,
     pickupOptions: [],
     destinationOptions: [],
-    prices: []
+    prices: [],
+    priceErrorMessage: ""
   };
 
   state = {
@@ -57,12 +55,12 @@ class Estimator extends React.Component {
       lng: longitude
     });
 
-    this.loadMap(latitude, longitude);
+    // this.loadMap(latitude, longitude);
   };
 
   handleGeoError = () => {
     console.log("No location");
-    this.loadMap(37.4220, -122.0841);
+    // this.loadMap(37.422, -122.0841);
   };
 
   async fetchPlaces(name, address) {
@@ -119,15 +117,36 @@ class Estimator extends React.Component {
     });
 
     // for testing
-    const prices = forMatEstimateResult(sample);
+    const result = await getUberEstimate(
+      pickLoc[0].lat,
+      pickLoc[0].lng,
+      destLoc[0].lat,
+      destLoc[0].lng
+    );
 
-    setTimeout(() => {
+    if (result.status === "OK") {
+      const { prices } = result;
+      const formattedPrices = forMatEstimateResult(prices);
+
+      setTimeout(() => {
+        this.setState({
+          prices: formattedPrices,
+          loading: false,
+          showRides: true
+        });
+      }, 3000);
+    } else {
+      const { message } = result;
+
+      console.log(message);
+
       this.setState({
-        prices,
         loading: false,
-        showRides: true
+        showRides: false,
+        prices: [],
+        priceErrorMessage: message
       });
-    }, 3000);
+    }
   };
 
   onReset = () => {
@@ -181,7 +200,9 @@ class Estimator extends React.Component {
               </InputBox>
               {this.state.pickup.length !== 0 &&
                 this.state.destination.length !== 0 &&
-                !this.state.loading && !this.state.showRides && (
+                !this.state.loading &&
+                !this.state.showRides &&
+                !this.state.priceErrorMessage && (
                   <EstimateBtn onClick={this.getFareEstimate}>
                     Calculate fare estimation
                   </EstimateBtn>
@@ -190,6 +211,19 @@ class Estimator extends React.Component {
                 <LoadingBox>
                   <Loading />
                 </LoadingBox>
+              )}
+              {this.state.priceErrorMessage && (
+                <EstimateResultBox>
+                  <EstimateResultTitleBox>
+                    <EstimateResultTitleText>Error</EstimateResultTitleText>
+                    <CrossDiv onClick={this.onReset}>
+                      <CrossIcon />
+                    </CrossDiv>
+                  </EstimateResultTitleBox>
+                  <DistanceErrorText>
+                    {this.state.priceErrorMessage}
+                  </DistanceErrorText>
+                </EstimateResultBox>
               )}
               {this.state.showRides && (
                 <EstimateResultBox>
@@ -413,4 +447,11 @@ const Map = styled.div`
   height: 100%;
   width: 100%;
   z-index: 1;
+`;
+
+const DistanceErrorText = styled.h1`
+  padding: 15px 0;
+  color: red;
+  font-size: 22px;
+  margin: 0px 20px;
 `;

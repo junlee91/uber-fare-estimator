@@ -2,6 +2,8 @@ import axios from "axios";
 import config from "./config";
 
 const MAPS_KEY = config.GOOGLE_MAP_API_KEY;
+const UBER_KEY = config.UBER_TOKEN;
+const UBER_URL = "https://api.uber.com/v1.2/estimates/price";
 
 export const geoCode = async address => {
   const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${MAPS_KEY}`;
@@ -40,4 +42,36 @@ export const reverseGeoCode = async (lat, lng) => {
 
     return false;
   }
+};
+
+export const getUberEstimate = async (
+  start_lat,
+  start_lng,
+  end_lat,
+  end_lng
+) => {
+  const URL = `/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}`;
+  const result = fetch(URL, {
+    method: "GET",
+    headers: {
+      Authorization: `Token ${UBER_KEY}`,
+      "Content-Type": "application/json"
+    }
+  })
+    .then(response => response.json())
+    .then(json => {
+      if (json.prices) {
+        return {
+          status: "OK",
+          prices: json.prices
+        };
+      }
+      return {
+        status: "Fail",
+        message: json.message
+      };
+    })
+    .catch(msg => console.log(msg));
+
+  return result;
 };
