@@ -1,7 +1,5 @@
 # Uber Fare Estimator
-- React
-- [Uber Price Estimate API](https://developer.uber.com/docs/riders/references/api/v1.2/estimates-price-get)
-- [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/tutorial)
+Cloning [Uber Estimate](https://www.uber.com/us/en/price-estimate/) with React, [Uber Price Estimate API](https://developer.uber.com/docs/riders/references/api/v1.2/estimates-price-get), and [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/tutorial)
 
 ![Screenshot](src/images/screenshot.png)
 
