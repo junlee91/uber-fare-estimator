@@ -55,12 +55,12 @@ class Estimator extends React.Component {
       lng: longitude
     });
 
-    // this.loadMap(latitude, longitude);
+    this.loadMap(latitude, longitude);
   };
 
   handleGeoError = () => {
     console.log("No location");
-    // this.loadMap(37.422, -122.0841);
+    this.loadMap(37.422, -122.0841);
   };
 
   async fetchPlaces(name, address) {
@@ -106,23 +106,16 @@ class Estimator extends React.Component {
   };
 
   getFareEstimate = async () => {
-    const { pickup, destination } = this.state;
-    const pickLoc = await geoCode(pickup);
-    const destLoc = await geoCode(destination);
-
-    console.log(pickLoc[0], destLoc[0]);
-
     this.setState({
       loading: true
     });
 
-    // for testing
-    const result = await getUberEstimate(
-      pickLoc[0].lat,
-      pickLoc[0].lng,
-      destLoc[0].lat,
-      destLoc[0].lng
-    );
+    const { pickup, destination } = this.state;
+    const pickLoc = await geoCode(pickup);
+    const destLoc = await geoCode(destination);
+    const { lat: startLat, lng: startLng } = pickLoc[0];
+    const { lat: endLat, lng: endLng } = destLoc[0];
+    const result = await getUberEstimate(startLat, startLng, endLat, endLng);
 
     if (result.status === "OK") {
       const { prices } = result;
@@ -133,10 +126,64 @@ class Estimator extends React.Component {
         loading: false,
         showRides: true
       });
+
+      // Set Map Markers
+      const { google } = this.props;
+      const maps = google.maps;
+      const pickUpMarkerOptions = {
+        icon: {
+          path: maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+          scale: 4
+        },
+        position: {
+          lat: startLat,
+          lng: startLng
+        }
+      };
+      this.pickUpMarker = new maps.Marker(pickUpMarkerOptions);
+      this.pickUpMarker.setMap(this.map);
+
+      const destMarkerOptions = {
+        icon: {
+          path: maps.SymbolPath.CIRCLE,
+          scale: 7
+        },
+        position: {
+          lat: endLat,
+          lng: endLng
+        }
+      }
+      this.destMarker = new maps.Marker(destMarkerOptions);
+      this.destMarker.setMap(this.map);
+
+      // Expand Map
+      const bounds = new maps.LatLngBounds();
+
+      bounds.extend({ lat: startLat, lng: startLng });
+      bounds.extend({ lat: endLat, lng: endLng });
+      this.map.fitBounds(bounds);
+
+      // Set Direction Path
+      const directionOptions = {
+        polylineOptions: {
+          strokeColor: "#000"
+        },
+        suppressMarkers: true
+      };
+
+      this.directions = new google.maps.DirectionsRenderer(directionOptions);
+      const directionsService = new google.maps.DirectionsService();
+      const to = new google.maps.LatLng(startLat, startLng);
+      const from = new google.maps.LatLng(endLat, endLng);
+      const directionsOptions = {
+        destination: to,
+        origin: from,
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      directionsService.route(directionsOptions, this.handleRouteRequest);
+
     } else {
       const { message } = result;
-
-      console.log(message);
 
       this.setState({
         loading: false,
@@ -147,8 +194,26 @@ class Estimator extends React.Component {
     }
   };
 
+  handleRouteRequest = (result, status) => {
+    if (status === "OK") {
+      // const { routes } = result;
+      // const {
+      //   distance: { text: distance },
+      //   duration: { text: duration }
+      // } = routes[0].legs[0];
+      this.directions.setDirections(result);
+      this.directions.setMap(this.map);
+    } else {
+      console.log.error("There is no route there, you have to swim ");
+    }
+  }
+
   onReset = () => {
     this.setState(this.initialState);
+
+    this.pickUpMarker.setMap(null);
+    this.destMarker.setMap(null);
+    this.directions.setMap(null);
 
     console.log("Reset!!", this.initialState);
   };
@@ -236,7 +301,9 @@ class Estimator extends React.Component {
                       prices.map(price => {
                         const low = price.low_estimate;
                         const estimate = low
-                          ? `$${low.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`
+                          ? `$${low
+                              .toFixed(2)
+                              .replace(/\d(?=(\d{3})+\.)/g, "$&,")}`
                           : price.estimate;
 
                         return (
