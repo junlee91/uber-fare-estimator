@@ -62,6 +62,7 @@ class Estimator extends React.Component {
 
   handleGeoError = () => {
     console.log("No location");
+    this.loadMap(37.4220, -122.0841);
   };
 
   async fetchPlaces(name, address) {
