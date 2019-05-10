@@ -59,6 +59,7 @@ export const getUberEstimate = async (
   })
     .then(response => response.json())
     .then(json => {
+      console.log(json);
       if (json.prices) {
         return {
           status: "OK",
@@ -70,7 +71,13 @@ export const getUberEstimate = async (
         message: json.message
       };
     })
-    .catch(msg => console.log(msg));
+    .catch(msg => {
+      console.log(msg);
+      return {
+        status: "Fail",
+        message: msg
+      }
+    });
 
   return result;
 };
