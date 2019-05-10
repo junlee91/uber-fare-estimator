@@ -49,13 +49,13 @@ export const getUberEstimate = async (
   end_lat,
   end_lng
 ) => {
-  let URL;
+  const query = `?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
+  let URL = `https://api.uber.com/v1.2/estimates/price${query}`;
 
-  if (process.env === "development") {
-    URL = `/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
-  } else {
-    URL = `https://api.uber.com/v1.2/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
+  if (process.env.NODE_ENV !== "production") {
+    URL = `/estimates/price${query}`;
   }
+
   const result = fetch(URL, {
     method: "GET",
     headers: {
