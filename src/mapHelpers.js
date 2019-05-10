@@ -49,7 +49,13 @@ export const getUberEstimate = async (
   end_lat,
   end_lng
 ) => {
-  const URL = `/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
+  let URL;
+
+  if (process.env === "development") {
+    URL = `/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
+  } else {
+    URL = `https://api.uber.com/v1.2/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
+  }
   const result = fetch(URL, {
     method: "GET",
     headers: {
@@ -57,9 +63,13 @@ export const getUberEstimate = async (
       "Content-Type": "application/json"
     }
   })
-    .then(response => response.json())
+    .then(response => {
+      if (response.state === 404) {
+        throw Error("Request failed");
+      }
+      return response.json();
+    })
     .then(json => {
-      console.log(json);
       if (json.prices) {
         return {
           status: "OK",
@@ -76,7 +86,7 @@ export const getUberEstimate = async (
       return {
         status: "Fail",
         message: msg
-      }
+      };
     });
 
   return result;
