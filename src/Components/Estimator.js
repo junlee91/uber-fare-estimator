@@ -59,7 +59,7 @@ class Estimator extends React.Component {
   };
 
   handleGeoError = () => {
-    console.log("No location");
+    console.log("No location, set to default.");
     this.loadMap(37.422, -122.0841);
   };
 
@@ -140,6 +140,8 @@ class Estimator extends React.Component {
           lng: startLng
         }
       };
+
+      // Create pickup marker
       this.pickUpMarker = new maps.Marker(pickUpMarkerOptions);
       this.pickUpMarker.setMap(this.map);
 
@@ -153,6 +155,8 @@ class Estimator extends React.Component {
           lng: endLng
         }
       }
+
+      // Create destination marker
       this.destMarker = new maps.Marker(destMarkerOptions);
       this.destMarker.setMap(this.map);
 
@@ -181,7 +185,6 @@ class Estimator extends React.Component {
         travelMode: google.maps.TravelMode.DRIVING
       };
       directionsService.route(directionsOptions, this.handleRouteRequest);
-
     } else {
       const { message } = result;
 
@@ -196,26 +199,20 @@ class Estimator extends React.Component {
 
   handleRouteRequest = (result, status) => {
     if (status === "OK") {
-      // const { routes } = result;
-      // const {
-      //   distance: { text: distance },
-      //   duration: { text: duration }
-      // } = routes[0].legs[0];
       this.directions.setDirections(result);
       this.directions.setMap(this.map);
     } else {
-      console.log.error("There is no route there, you have to swim ");
+      console.log.error("There is no route there.");
     }
   }
 
   onReset = () => {
     this.setState(this.initialState);
 
+    // Reset markers and directions on map
     this.pickUpMarker.setMap(null);
     this.destMarker.setMap(null);
     this.directions.setMap(null);
-
-    console.log("Reset!!", this.initialState);
   };
 
   render() {
