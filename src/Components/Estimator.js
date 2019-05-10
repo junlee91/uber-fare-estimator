@@ -131,6 +131,11 @@ class Estimator extends React.Component {
         showRides: true
       });
 
+      if (!this.map) {
+        // sometimes the map is not loaded, so ignore the cool part :(
+        return;
+      }
+
       // Set Map Markers
       const { google } = this.props;
       const maps = google.maps;

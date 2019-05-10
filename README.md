@@ -3,6 +3,8 @@
 - [Uber Price Estimate API](https://developer.uber.com/docs/riders/references/api/v1.2/estimates-price-get)
 - [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/tutorial)
 
+![Screenshot](src/images/screenshot.png)
+
 ### Get API Keys for Google and Uber
 #### Uber
 - Create new project from [Uber Developer Dashboard](https://developer.uber.com/dashboard/) and get Server Token.
@@ -23,3 +25,5 @@ yarn start
 ### Limitations
 - Uber Fare Estimate API does not reflect real-time availability of the products.
 - No location suggestions when entering pickup & destinations.
+- Sadly, the page is not responsive.
+- Only support North America and USD.
