@@ -83,6 +83,10 @@ class Estimator extends React.Component {
     const { google } = this.props;
     const maps = google.maps;
     const mapNode = ReactDOM.findDOMNode(this.mapRef.current);
+    if (!mapNode) {
+      this.loadMap(lat, lng);
+      return;
+    }
     const mapConfig = {
       center: {
         lat,

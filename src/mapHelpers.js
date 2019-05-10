@@ -50,7 +50,7 @@ export const getUberEstimate = async (
   end_lng
 ) => {
   const query = `?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
-  const URL = `/estimates/price${query}`;
+  const URL = `https://cors-anywhere.herokuapp.com/https://api.uber.com/v1.2/estimates/price${query}`;
 
   const result = fetch(URL, {
     method: "GET",
@@ -60,7 +60,7 @@ export const getUberEstimate = async (
     }
   })
     .then(response => {
-      if (response.state === 404) {
+      if (response.status === 404) {
         throw Error("Request failed");
       }
       return response.json();
