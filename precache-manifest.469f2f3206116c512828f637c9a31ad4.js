@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "36cc91113db9d50998b45bf63240f5f8",
+    "revision": "d2a366b18d195610746b2746d57da443",
     "url": "/uber-fare-estimator/index.html"
   },
   {
@@ -8,8 +8,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/uber-fare-estimator/static/js/2.944d79ae.chunk.js"
   },
   {
-    "revision": "7c4d81c10b63f40905a2",
-    "url": "/uber-fare-estimator/static/js/main.4d9bc862.chunk.js"
+    "revision": "c0a9fff4787f31cc62f2",
+    "url": "/uber-fare-estimator/static/js/main.324dce8f.chunk.js"
   },
   {
     "revision": "f4889c09948764a2c593",

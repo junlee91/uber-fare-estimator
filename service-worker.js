@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.0/workbox-sw.js");
 
 importScripts(
-  "/uber-fare-estimator/precache-manifest.39303788e6800d771406479096548719.js"
+  "/uber-fare-estimator/precache-manifest.469f2f3206116c512828f637c9a31ad4.js"
 );
 
 self.addEventListener('message', (event) => {
