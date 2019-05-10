@@ -3,7 +3,6 @@ import config from "./config";
 
 const MAPS_KEY = config.GOOGLE_MAP_API_KEY;
 const UBER_KEY = config.UBER_TOKEN;
-const UBER_URL = "https://api.uber.com/v1.2/estimates/price";
 
 export const geoCode = async address => {
   const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${MAPS_KEY}`;
@@ -50,7 +49,7 @@ export const getUberEstimate = async (
   end_lat,
   end_lng
 ) => {
-  const URL = `/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}`;
+  const URL = `/estimates/price?start_latitude=${start_lat}&start_longitude=${start_lng}&end_latitude=${end_lat}&end_longitude=${end_lng}&seat_count=1`;
   const result = fetch(URL, {
     method: "GET",
     headers: {

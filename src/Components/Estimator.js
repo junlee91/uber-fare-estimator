@@ -11,7 +11,7 @@ import { geoCode, getUberEstimate } from "../mapHelpers";
 import { debounce } from "./utils";
 
 function forMatEstimateResult(prices) {
-  const sorted = _.orderBy(prices, "estimate");
+  const sorted = _.orderBy(prices, "low_estimate");
   return sorted;
 }
 
@@ -128,13 +128,11 @@ class Estimator extends React.Component {
       const { prices } = result;
       const formattedPrices = forMatEstimateResult(prices);
 
-      setTimeout(() => {
-        this.setState({
-          prices: formattedPrices,
-          loading: false,
-          showRides: true
-        });
-      }, 3000);
+      this.setState({
+        prices: formattedPrices,
+        loading: false,
+        showRides: true
+      });
     } else {
       const { message } = result;
 
@@ -237,11 +235,9 @@ class Estimator extends React.Component {
                     {prices &&
                       prices.map(price => {
                         const low = price.low_estimate;
-                        const high = price.high_estimate;
-                        const estimate =
-                          low && high
-                            ? `$${(low + high) / 2.0}`
-                            : price.estimate;
+                        const estimate = low
+                          ? `$${low.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`
+                          : price.estimate;
 
                         return (
                           <RideItem key={price.display_name}>
