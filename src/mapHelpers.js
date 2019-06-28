@@ -55,7 +55,7 @@ export const getUberEstimate = async (
   const result = fetch(URL, {
     method: "GET",
     headers: {
-      Authorization: `Token ${UBER_KEY}`,
+      Authorization: `Bearer ${UBER_KEY}`,
       "Content-Type": "application/json"
     }
   })
