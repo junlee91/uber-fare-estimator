@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.js": "/uber-fare-estimator/static/js/main.bd8abfc9.chunk.js",
-    "main.js.map": "/uber-fare-estimator/static/js/main.bd8abfc9.chunk.js.map",
+    "main.js": "/uber-fare-estimator/static/js/main.de8c4324.chunk.js",
+    "main.js.map": "/uber-fare-estimator/static/js/main.de8c4324.chunk.js.map",
     "runtime~main.js": "/uber-fare-estimator/static/js/runtime~main.9476b450.js",
     "runtime~main.js.map": "/uber-fare-estimator/static/js/runtime~main.9476b450.js.map",
-    "static/js/2.944d79ae.chunk.js": "/uber-fare-estimator/static/js/2.944d79ae.chunk.js",
-    "static/js/2.944d79ae.chunk.js.map": "/uber-fare-estimator/static/js/2.944d79ae.chunk.js.map",
+    "static/js/2.f05e3746.chunk.js": "/uber-fare-estimator/static/js/2.f05e3746.chunk.js",
+    "static/js/2.f05e3746.chunk.js.map": "/uber-fare-estimator/static/js/2.f05e3746.chunk.js.map",
     "index.html": "/uber-fare-estimator/index.html",
-    "precache-manifest.28a76dbfaa12abbfee7327610c87571d.js": "/uber-fare-estimator/precache-manifest.28a76dbfaa12abbfee7327610c87571d.js",
+    "precache-manifest.424dae350482f0483bf37f9cbd30fcf6.js": "/uber-fare-estimator/precache-manifest.424dae350482f0483bf37f9cbd30fcf6.js",
     "service-worker.js": "/uber-fare-estimator/service-worker.js"
   }
 }
