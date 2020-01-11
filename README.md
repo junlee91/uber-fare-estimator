@@ -4,9 +4,9 @@ Cloning [Uber Estimate](https://www.uber.com/us/en/price-estimate/) with React, 
 ![Screenshot](src/images/screenshot.png)
 
 ### Get API Keys for Google and Uber
-#### Uber
-- Create new project from [Uber Developer Dashboard](https://developer.uber.com/dashboard/) and get Server Token.
-- Set this key to `UBER_TOKEN` in source files.
+#### Uber (_deprecated_)
+- ~Create new project from [Uber Developer Dashboard](https://developer.uber.com/dashboard/) and get Server Token.~
+- ~Set this key to `UBER_TOKEN` in source files.~
 #### Google
 - Create new project from [Google Cloud Platform](https://console.cloud.google.com) and enable following APIs
   - Maps JavaScript API
